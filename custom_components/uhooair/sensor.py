@@ -163,7 +163,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             for device in devices.values():
 
                 _LOGGER.debug(
-                    f"Found: {device.serial_number}\n  {device.created_at}\n  "
+                    f"Found: {device.serial_number}\n  {device.timestamp}\n  "
                     + f"{device.temp} {client.user_settings_temp}\n"
                 )
 
@@ -223,7 +223,7 @@ class UhooAirSensor(Entity):
     def available(self):
         """Device availability based on the last update timestamp."""
 
-        last_api_read = self._device.datetime
+        last_api_read = self._device.timestamp
 
         p_time = dt.parse_datetime(last_api_read)
 
