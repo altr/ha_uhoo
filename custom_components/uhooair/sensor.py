@@ -163,7 +163,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
             for device in devices.values():
 
                 _LOGGER.debug(
-                    f"Found: {device.serial_number}\n  {device.datetime}\n  "
+                    f"Found: {device.serial_number}\n  {device.created_at}\n  "
                     + f"{device.temp} {client.user_settings_temp}\n"
                 )
 
