@@ -129,7 +129,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         if _LOGGER.level == logging.DEBUG:
             debug = True
         
-        client = Client(username, password, websession, debug)
+        client = Client(username, password, websession, debug=debug)
 
         try:
             await client.login()
