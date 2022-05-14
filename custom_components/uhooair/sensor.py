@@ -154,6 +154,7 @@ async def async_setup_platform(
                     # Note: asyncio.TimeoutError and aiohttp.ClientError are already
                     # handled by the data update coordinator.
                     async with async_timeout.timeout(10):
+                        await client.login()
                         return await client.get_latest_data()
                 except Exception as err:
                     raise UpdateFailed(f"Error communicating with API: {err}")
