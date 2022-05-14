@@ -133,7 +133,12 @@ async def async_setup_platform(
     username = config[CONF_EMAIL]
     password = config[CONF_PASSWORD]
     async with ClientSession() as websession:
-        client = Client(username, password, websession, debug=True)
+
+        debug = False
+        if _LOGGER.level == logging.DEBUG:
+            debug = True
+
+        client = Client(username, password, websession, debug=debug)
 
         try:
             await client.login()
