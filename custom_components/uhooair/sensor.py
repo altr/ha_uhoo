@@ -1,31 +1,32 @@
 """
 Support for the uHoo indoor air quality monitor.
-
 For more details about this platform, please refer to the documentation at
 https://github.com/mcclown/home-assistant-custom-components
 """
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 import logging
+import math
 import async_timeout
 import voluptuous as vol
-from typing import Any, Dict, Optional
 
 from homeassistant.const import (
     CONF_EMAIL,
     CONF_PASSWORD,
+    CONF_DEVICES,
     TEMP_CELSIUS,
 )
 
 from homeassistant.components.sensor import SensorDeviceClass
 
 from homeassistant.exceptions import PlatformNotReady
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
-
-from homeassistant import config_entries, core
+from homeassistant.util import Throttle, dt
 
 from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
     DataUpdateCoordinator,
     UpdateFailed,
 )
@@ -112,23 +113,13 @@ PLATFORM_SCHEMA = cv.PLATFORM_SCHEMA.extend(
 )
 
 
-async def async_setup_platform(
-    hass: core.HomeAssistant,
-    config: config_entries.ConfigEntry,
-    async_add_entities,
-    discovery_info=None,
-):
+async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Connect to the uHoo API and find devices."""
     from pyuhoo import Client
     from aiohttp import ClientSession
 
     # from pyuhoo.data import get_all_devices
     # from pyuhoo.objects import UhooDev
-
-    # session = async_get_clientsession(hass)
-    # github = GitHubAPI(session, "requester", oauth_token=config[CONF_ACCESS_TOKEN])
-    # sensors = [GitHubRepoSensor(github, repo) for repo in config[CONF_REPOS]]
-    # async_add_entities(sensors, update_before_add=True)
 
     username = config[CONF_EMAIL]
     password = config[CONF_PASSWORD]
@@ -146,7 +137,6 @@ async def async_setup_platform(
 
             async def async_update_data():
                 """Fetch data from API endpoint.
-
                 This is the place to pre-process the data to lookup tables
                 so entities can quickly look up their data.
                 """
@@ -154,7 +144,6 @@ async def async_setup_platform(
                     # Note: asyncio.TimeoutError and aiohttp.ClientError are already
                     # handled by the data update coordinator.
                     async with async_timeout.timeout(10):
-                        await client.login()
                         return await client.get_latest_data()
                 except Exception as err:
                     raise UpdateFailed(f"Error communicating with API: {err}")
@@ -178,8 +167,8 @@ async def async_setup_platform(
             for device in devices.values():
 
                 _LOGGER.debug(
-                    f"Found: {device.serial_number}\n  {device.created_at}\n  "
-                    + f"{device.temp} {client.user_settings_temp}\n"
+                    f"Uhoo device found: {device.serial_number}\n \n  "
+                    + f"Temperatue: {device.temp}\n"
                 )
 
                 for sensor in SENSOR_TYPES:
@@ -187,7 +176,7 @@ async def async_setup_platform(
                         uhoo_sensor = UhooAirSensor(coordinator, device, sensor)
                         all_devices.append(uhoo_sensor)
 
-            async_add_entities(all_devices, update_before_add=True)
+            async_add_entities(all_devices, True)
             return
         except Exception as e:
             _LOGGER.error("Error: {0}".format(e))
@@ -208,17 +197,48 @@ class UhooAirSensor(Entity):
         self._name = "{0} {1}".format(device.name, self._device_class)
         self._unit_of_measurement = SENSOR_TYPES[sensor_type]["unit_of_measurement"]
         self._type = sensor_type
-        self._available = True
 
     @property
-    def device_class(self) -> str:
+    def name(self):
+        """Return the name of the sensor."""
+        return self._name
+
+    @property
+    def device_class(self):
         """Return the device class."""
         return self._device_class
 
     @property
-    def icon(self) -> str:
+    def icon(self):
         """Icon to use in the frontend."""
         return SENSOR_TYPES[self._type]["icon"]
+
+    @property
+    def state(self):
+        """Return the state of the device."""
+        return getattr(self._device, self._type)
+
+    @property
+    def device_state_attributes(self):
+        """Return additional attributes."""
+        return {}
+
+    @property
+    def available(self):
+        """Device availability based on the last update timestamp."""
+
+        last_api_read = self._device.timestamp
+
+        p_time = dt.utc_from_timestamp(last_api_read)
+
+        # p_time = datetime.strptime(last_api_read, "%Y-%m-%d %H:%M")
+
+        return (dt.utcnow() - dt.as_utc(p_time)) < (timedelta(minutes=60))
+
+    @property
+    def unique_id(self):
+        """Return the unique id of this entity."""
+        return "{}_{}".format(self._uuid, self._type)
 
     @property
     def unit_of_measurement(self):
@@ -229,34 +249,3 @@ class UhooAirSensor(Entity):
     def should_poll(self):
         """Should device be polled"""
         return True
-
-    @property
-    def name(self) -> str:
-        """Return the name of the entity."""
-        return self._name
-
-    @property
-    def unique_id(self) -> str:
-        """Return the unique ID of the sensor."""
-        return "{}_{}".format(self._uuid, self._type)
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def state(self) -> Optional[str]:
-        return getattr(self._device, self._type)
-
-    @property
-    def device_state_attributes(self) -> Dict[str, Any]:
-        return {}
-
-    async def async_update(self):
-        """Refresh data"""
-        try:
-            # Fetch data
-            await self._coordinator.async_refresh()
-        except Exception as e:
-            _LOGGER.error("Error: {0}".format(e))
