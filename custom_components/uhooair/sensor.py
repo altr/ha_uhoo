@@ -226,14 +226,11 @@ class UhooAirSensor(Entity):
     @property
     def available(self):
         """Device availability based on the last update timestamp."""
-
-        last_api_read = self._device.timestamp
-
-        p_time = dt.utc_from_timestamp(last_api_read)
-
-        # p_time = datetime.strptime(last_api_read, "%Y-%m-%d %H:%M")
-
-        return (dt.utcnow() - dt.as_utc(p_time)) < (timedelta(minutes=60))
+        return True
+#        last_api_read = self._device.timestamp
+#        p_time = dt.utc_from_timestamp(last_api_read)
+#        # p_time = datetime.strptime(last_api_read, "%Y-%m-%d %H:%M")
+#        return (dt.utcnow() - dt.as_utc(p_time)) < (timedelta(minutes=60))
 
     @property
     def unique_id(self):
