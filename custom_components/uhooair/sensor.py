@@ -12,10 +12,6 @@ import voluptuous as vol
 from homeassistant.const import (
     CONF_EMAIL,
     CONF_PASSWORD,
-<<<<<<< HEAD
-=======
-    CONF_DEVICES,
->>>>>>> 39e9a052c69a23e4ab37cb7747abef6ad2f68c6d
     TEMP_CELSIUS,
 )
 
@@ -124,20 +120,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     username = config[CONF_EMAIL]
     password = config[CONF_PASSWORD]
-<<<<<<< HEAD
-=======
-    async with ClientSession() as websession:
-
-        debug = False
-        if _LOGGER.level == logging.DEBUG:
-            debug = True
-
-        client = Client(username, password, websession, debug=debug)
->>>>>>> 39e9a052c69a23e4ab37cb7747abef6ad2f68c6d
 
     try:
 
-<<<<<<< HEAD
         debug = False
         if _LOGGER.getEffectiveLevel() == logging.DEBUG:
             debug = True
@@ -145,20 +130,6 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
         client = Client(username, password, websession, debug=debug)
         await client.login()
         await client.get_latest_data()
-=======
-            async def async_update_data():
-                """Fetch data from API endpoint.
-                This is the place to pre-process the data to lookup tables
-                so entities can quickly look up their data.
-                """
-                try:
-                    # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-                    # handled by the data update coordinator.
-                    async with async_timeout.timeout(10):
-                        return await client.get_latest_data()
-                except Exception as err:
-                    raise UpdateFailed(f"Error communicating with API: {err}")
->>>>>>> 39e9a052c69a23e4ab37cb7747abef6ad2f68c6d
 
         async def async_update_data():
             """Fetch data from API endpoint.
@@ -252,7 +223,6 @@ class UhooAirSensor(Entity):
     @property
     def available(self):
         """Device availability based on the last update timestamp."""
-<<<<<<< HEAD
 
         last_api_read = self._device.timestamp
 
@@ -261,13 +231,6 @@ class UhooAirSensor(Entity):
         # p_time = datetime.strptime(last_api_read, "%Y-%m-%d %H:%M")
 
         return (dt.utcnow() - dt.as_utc(p_time)) < (timedelta(minutes=60))
-=======
-        return True
-#        last_api_read = self._device.timestamp
-#        p_time = dt.utc_from_timestamp(last_api_read)
-#        # p_time = datetime.strptime(last_api_read, "%Y-%m-%d %H:%M")
-#        return (dt.utcnow() - dt.as_utc(p_time)) < (timedelta(minutes=60))
->>>>>>> 39e9a052c69a23e4ab37cb7747abef6ad2f68c6d
 
     @property
     def unique_id(self):
