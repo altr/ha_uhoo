@@ -1,9 +1,8 @@
 {
   "domain": "uhooair",
   "name": "uHooAir",
-  "documentation": "https://gitlab.com/alelec/ha_uhoo",
   "dependencies": [],
-  "codeowners": ["@andrewleech", "@ehn", "@mcclown"],
+  "codeowners": ["@andrewleech", "@ehn", "@mcclown", "@altra"],
   "requirements": [
     "pyuhoo @ git+https://github.com/altr/pyuhoo.git@merge-patches"
   ],
