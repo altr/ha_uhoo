@@ -5,7 +5,8 @@
   "dependencies": [],
   "codeowners": ["@andrewleech", "@ehn", "@mcclown"],
   "requirements": [
-    "pyuhoo @ git+https://github.com/altr/pyuhoo.git"
+    "pyuhoo @ git+https://github.com/altr/pyuhoo.git@merge-patches"
   ],
+  "iot_class": "cloud_polling",
   "version": "1.0"
 }
