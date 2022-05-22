@@ -1,6 +1,7 @@
 """Support for Uhoo sensor."""
 
 from pyuhoo.device import Device
+from sqlalchemy import true
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -46,14 +47,16 @@ class UhooSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
 
         self.device = device
-        self.entity_description = description
-        self._uuid = device.serial_number
-        self._device_class = description.device_class
-        self._name = "{0} {1}".format(device.name, self._device_class)
-        self._unit_of_measurement = description.unit_of_measurement
-        self._type = description.name
+
+        self._attr_name = "{0} {1}".format(device.name, description.device_class)
+        self._attr_unique_id = "{}_{}".format(device.serial_number, description.name)
+        self._attr_device_class = description.device_class
+        self._attr_unit_of_measurement = description.native_unit_of_measurement
         self._attr_icon = description.icon
-        self._attr_unique_id = "{}_{}".format(self._uuid, self._type)
+        self._type = description.name
+        self.entity_description = description
+        self.entity_id = f"{DOMAIN}.{device.name}_{description.device_class}"
+        self._attr_entity_registry_visible_default = True
 
     @property
     def device_info(self):
