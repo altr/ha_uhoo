@@ -4,8 +4,6 @@ import logging
 from pyuhoo import Client
 from pyuhoo.errors import UnauthorizedError
 
-import async_timeout
-
 import voluptuous as vol
 
 from homeassistant import config_entries

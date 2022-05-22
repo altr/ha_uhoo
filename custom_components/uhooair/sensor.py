@@ -1,7 +1,6 @@
 """Support for Uhoo sensor."""
 
 from pyuhoo.device import Device
-from sqlalchemy import true
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -70,6 +69,10 @@ class UhooSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        return (
-            getattr(self.device, self.entity_description.key) if self.device else None
-        )
+
+        latest_data = self.coordinator.data.get(self.device.serial_number)
+
+        if latest_data:
+            return getattr(latest_data, self.entity_description.key, None)
+        else:
+            return None
