@@ -1,6 +1,7 @@
 {
   "domain": "uhooair",
   "name": "uHooAir",
+  "config_flow": true,
   "dependencies": [],
   "codeowners": ["@andrewleech", "@ehn", "@mcclown", "@altra"],
   "requirements": [

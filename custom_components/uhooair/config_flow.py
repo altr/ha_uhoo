@@ -1,4 +1,4 @@
-"""Config flow to configure the Meteoclimatic integration."""
+"""Config flow to configure the Uhoo integration."""
 import logging
 
 from pyuhoo import Client
@@ -19,8 +19,8 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
-class MeteoclimaticFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a Meteoclimatic config flow."""
+class UhooFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a Uhoo config flow."""
 
     VERSION = 1
 
