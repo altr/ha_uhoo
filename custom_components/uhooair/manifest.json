@@ -8,5 +8,5 @@
     "pyuhoo @ git+https://github.com/altr/pyuhoo.git@merge-patches"
   ],
   "iot_class": "cloud_polling",
-  "version": "1.0"
+  "version": "1.1"
 }
